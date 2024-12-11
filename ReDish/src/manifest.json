@@ -1,13 +1,9 @@
 {
   "manifest_version": 3,
-  "name": "ReDish - LeftoverChef",
-  "description": "Find recipes from your leftover ingredients.",
-  "version": "1.0",
+  "name": "Minimal Manifest",
+  "version": "1.0.0",
+  "description": "A basic example extension with only required keys",
   "action": {
     "default_popup": "index.html"
-  },
-  "background": {
-    "service_worker": "background.js"
-  },
-  "permissions": ["storage", "activeTab"]
+  }
 }

@@ -1,47 +1,45 @@
 import { useState } from 'react';
-import './index.css'; 
+import './index.css';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
-// Function to fetch the API key from Chrome storage
-const getApiKeyFromStorage = async (): Promise<string> => {
-  return new Promise((resolve) => {
-    chrome.storage.local.get(['geminiApiKey'], (result: { geminiApiKey: string }) => {
-      resolve(result.geminiApiKey || '');  // Access 'geminiApiKey' from result
-    });
-  });
+// Fetch API key from the environment variable
+const getApiKeyFromEnv = (): string => {
+  return process.env.REACT_APP_GEMINI_API_KEY || ''; // Get the API key or return an empty string
 };
 
 const App = () => {
-  const [apiKey, setApiKey] = useState<string>('');  // State to store the API key
-  const [leftovers, setLeftovers] = useState<string>('');  // State for leftovers input
-  const [recipe, setRecipe] = useState<string>('');  // State to store recipe response
-  const [loading, setLoading] = useState<boolean>(false);  // State for loading status
-  const [showChat, setShowChat] = useState<boolean>(false);  // State to manage chat display
+  const [leftover, setLeftover] = useState<string>(''); // State for single leftover input
+  const [leftoversList, setLeftoversList] = useState<string[]>([]); // State for leftovers list
+  const [recipe, setRecipe] = useState<string>(''); // State to store recipe response
+  const [loading, setLoading] = useState<boolean>(false); // State for loading status
 
-  // Function to handle API key submission
-  const handleApiKeySubmit = () => {
-    if (apiKey.trim()) {
-      setShowChat(true);  // Show chat interface once the API key is provided
+  // Function to add leftover to the list
+  const addLeftover = () => {
+    if (leftover.trim()) {
+      setLeftoversList([...leftoversList, leftover.trim()]); // Add to list
+      setLeftover(''); // Clear the input
     }
   };
 
   // Function to fetch recipe from the Google Generative AI (Gemini)
   const fetchRecipe = async () => {
-    if (!leftovers.trim()) return;  // Return early if there are no leftovers entered
+    if (!leftoversList.length) return; // Return early if there are no leftovers
     setLoading(true);
 
     try {
-      const apiKey = await getApiKeyFromStorage();  // Get API key from Chrome storage
+      const apiKey = getApiKeyFromEnv(); // Get API key from the environment variable
 
-      // Use Google Generative AI (Gemini)
-      const { GoogleGenerativeAI } = require('@google/generative-ai');
-      const genAI = new GoogleGenerativeAI(apiKey); // Initialize with the API key
+      // Initialize Google Generative AI with the API key
+      const genAI = new GoogleGenerativeAI(apiKey);
       const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' }); // Use the Gemini model
 
-      const prompt = `Based on these leftover ingredients: ${leftovers}, suggest a recipe.`;
+      const prompt = `Based on these leftover ingredients: ${leftoversList.join(
+        ', '
+      )}, suggest a recipe.`;
       const result = await model.generateContent(prompt); // Generate content using the prompt
       const generatedRecipe = result.response.text(); // Get the text response
 
-      setRecipe(generatedRecipe);  // Set the recipe response
+      setRecipe(generatedRecipe); // Set the recipe response
     } catch (error) {
       console.error('Error fetching recipe:', error);
       setRecipe('Failed to fetch recipe. Please try again.');
@@ -53,47 +51,52 @@ const App = () => {
   return (
     <div className="min-h-screen flex justify-center items-center bg-gray-100">
       <div className="fixed bottom-4 right-4 bg-white shadow-lg p-4 rounded-lg w-80">
-        {!showChat ? (
-          <div>
-            <h1 className="text-xl font-bold text-center text-gray-700">Enter API Key</h1>
-            <input
-              type="text"
-              className="w-full p-2 mt-2 border rounded-md"
-              placeholder="Enter Gemini API Key"
-              value={apiKey}
-              onChange={(e) => setApiKey(e.target.value)}
-            />
-            <button
-              className="w-full mt-3 p-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
-              onClick={handleApiKeySubmit}
-              disabled={!apiKey.trim()}
-            >
-              Submit API Key
-            </button>
+        <h1 className="text-xl font-bold text-center text-gray-700">LeftoverChef</h1>
+        
+        {/* Add Leftover Input */}
+        <div className="mt-3">
+          <input
+            type="text"
+            className="w-full p-2 border rounded-md"
+            placeholder="Enter leftover ingredient..."
+            value={leftover}
+            onChange={(e) => setLeftover(e.target.value)}
+          />
+          <button
+            className="w-full mt-2 p-2 bg-green-500 text-white rounded-md hover:bg-green-600"
+            onClick={addLeftover}
+            disabled={!leftover.trim()}
+          >
+            Add to List
+          </button>
+        </div>
+
+        {/* Display Leftovers List */}
+        {leftoversList.length > 0 && (
+          <div className="mt-3">
+            <h2 className="text-lg font-semibold text-gray-800">Ingredients:</h2>
+            <ul className="mt-2 list-disc list-inside text-gray-700">
+              {leftoversList.map((item, index) => (
+                <li key={index}>{item}</li>
+              ))}
+            </ul>
           </div>
-        ) : (
-          <div>
-            <h1 className="text-xl font-bold text-center text-gray-700">LeftoverChef</h1>
-            <textarea
-              className="w-full p-2 mt-2 border rounded-md"
-              rows={4}
-              placeholder="Enter leftover ingredients..."
-              value={leftovers}
-              onChange={(e) => setLeftovers(e.target.value)}
-            />
-            <button
-              className="w-full mt-3 p-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
-              onClick={fetchRecipe}
-              disabled={loading}
-            >
-              {loading ? 'Finding Recipe...' : 'Find Recipe'}
-            </button>
-            {recipe && (
-              <div className="mt-3 p-2 border-t border-gray-300">
-                <h2 className="text-lg font-semibold text-gray-800">Suggested Recipe:</h2>
-                <p className="mt-1 text-gray-700">{recipe}</p>
-              </div>
-            )}
+        )}
+
+        {/* Generate Recipe Button */}
+        <button
+          className="w-full mt-4 p-2 bg-red-500 text-white rounded-md hover:bg-red-600"
+          onClick={fetchRecipe}
+          disabled={loading || leftoversList.length === 0}
+        >
+          {loading ? 'Finding Recipe...' : 'Generate Recipe'}
+        </button>
+
+        {/* Display Recipe */}
+        {recipe && (
+          <div className="mt-3 p-2 border-t border-gray-300">
+            <h2 className="text-lg font-semibold text-gray-800">Suggested Recipe:</h2>
+            <p className="mt-1 text-gray-700">{recipe}</p>
           </div>
         )}
       </div>
