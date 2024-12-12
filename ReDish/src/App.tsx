@@ -9,29 +9,31 @@ import botIcon from './assets/chef.png';
 const App = () => {
   const [input, setInput] = useState('');
   const [counter, setCounter] = useState(0);
-  const [foodList, setFoodList] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [chat, setChat] = useState<{ sender: string; text: string }[]>([]);
   const apiKey = import.meta.env.VITE_API_KEY;
 
-  const addFoodItem = () => {
-    if (input.trim() !== '') {
-      setFoodList((prevList) => [...prevList, input.trim()]);
-      setInput('');
-    }
-  };
 
   const generateAnswer = async () => {
-    if (foodList.length === 0) {
-      alert('Please add at least one food item to the list.');
+    if (input.length === 0 && !input.trim()) {
+      alert('Please provide input or add food items to the list.');
       return;
     }
-
-    const prompt = `You are ReDish, a Chrome extension that helps users make dishes from leftover food items. You specialize in Indian cuisine. Suggest short and beautifully formatted dishes that can be easily made at home using these leftover items: ${foodList.join(', ')}.`;
-
+  
+    const userText = input.trim();
+    let prompt = '';
+  
+    if (counter == 0) {
+      prompt = `You are ReDish, a Chrome extension that helps users make dishes from leftover food items. You specialize in Indian cuisine. Suggest short and beautifully formatted dishes that can be easily made at home using these leftover items: ${input}.`;
+      setChat((prevChat) => [...prevChat, { sender: 'user', text: `Food items: ${input}` }]);
+    } else {
+      prompt = `${userText}`;
+      setChat((prevChat) => [...prevChat, { sender: 'user', text: userText }]);
+    }
+  
+    setInput('');
     setIsLoading(true);
-    setChat((prevChat) => [...prevChat, { sender: 'user', text: `Food items: ${foodList.join(', ')}` }]);
-
+  
     try {
       const response = await axios({
         url: `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`,
@@ -40,10 +42,11 @@ const App = () => {
           contents: [{ parts: [{ text: prompt }] }],
         },
       });
-      const botResponse = response['data']['candidates'][0]['content']['parts'][0]['text'];
+  
+      const botResponse = response.data?.candidates?.[0]?.content?.parts?.[0]?.text || 'Sorry, I could not generate a response.';
       setChat((prevChat) => [...prevChat, { sender: 'bot', text: botResponse }]);
     } catch (error) {
-      console.error('Error generating answer:', error);
+      console.error('Error generating response:', error);
       setChat((prevChat) => [
         ...prevChat,
         { sender: 'bot', text: 'An error occurred while generating the response. Please try again.' },
@@ -52,30 +55,7 @@ const App = () => {
       setIsLoading(false);
     }
   };
-
-  const handleSend = async () => {
-    if (!input.trim()) return;
-
-    setChat((prevChat) => [...prevChat, { sender: 'user', text: input }]);
-    setInput('');
-    setIsLoading(true);
-
-    try {
-      const response: string = await generateResponse(input); // Replace with actual API call
-      setChat((prevChat) => [...prevChat, { sender: 'bot', text: response }]);
-    } catch (error) {
-      console.error('Error generating response:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const generateResponse = async (text: string): Promise<string> => {
-    // Mock API call
-    return new Promise<string>((resolve) => {
-      setTimeout(() => resolve(`Response to: ${text}`), 1000);
-    });
-  };
+  
 
   return (
     <div className="p-4 bg-[#1E201E] min-h-screen">
@@ -140,20 +120,20 @@ const App = () => {
 
         <div className='flex justify-end items-center mr-5'>
           <input
-            className="input h-[44px] mt-2 text-[14px] text-white/60 w-[450px] bg-[#1E201E] text-[#f4f4f5] px-3 py-1 rounded-lg border border-white/10 focus:outline-none focus:ring-2 focus:ring-gray-700 focus:ring-offset-2 focus:ring-offset-[#09090b] transition-all duration-150 ease-in-out"
+            className="input h-[46px] mt-2 text-[14px] text-white/60 w-[450px] bg-[#1E201E] text-[#f4f4f5] px-3 py-1 rounded-[36px] border border-white/10 focus:outline-none focus:ring-2 focus:ring-gray-700 focus:ring-offset-2 focus:ring-offset-[#758570] transition-all duration-150 ease-in-out"
             name="text"
             type="text"
-            placeholder={counter === 0 ? "Enter the leftover items" : "Ask ReDish..."}
+            placeholder={chat.length === 0 ? "Enter the leftover items" : "Ask ReDish..."}
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+            onKeyDown={(e) => e.key === 'Enter' && generateAnswer()}
           />
           <span>
             <img
-              className='w-11 mt-2 cursor-pointer hover:bg-slate-900 rounded-[6px] ml-1 p-1'
+              className='w-12 mt-2 cursor-pointer hover:bg-[#1E201E] rounded-[6px] ml-1 p-1'
               src={send}
               alt="Send"
-              onClick={handleSend}
+              onClick={generateAnswer}
             />
           </span>
         </div>
