@@ -64,10 +64,10 @@ const App = () => {
 
   return (
     <div className="p-4 bg-[#1E201E] min-h-screen">
-      <h1 className="text-7xl pt-5 font-bold text-[#697565] unlock-regular flex justify-center items-center">ReDish</h1>
-      <p className="mb-3 text-[#ECDFCC] text-2xl flex justify-center items-center">Discover Indian recipes with your leftover ingredients!</p>
-      <div className='shadow-2xl h-[45rem] w-[80%] mx-auto bg-[#262926] rounded-[36px]'>
-        <button
+      <h1 className="lg:text-7xl text-5xl pt-5 font-bold text-[#697565] unlock-regular flex justify-center items-center mb-1">ReDish</h1>
+      <p className="mb-3 text-[#ECDFCC] lg:text-2xl text-sm flex justify-center items-center">Discover Indian recipes with your leftover ingredients!</p>
+      <div className='shadow-2xl h-[45rem] lg:w-[80%] w-[100%] mx-auto bg-[#262926] rounded-[36px] lg:scale-100 scale-[.9]'>
+        <button 
           className="smky-btn3 relative hover:text-[#ECDFCC] ml-1 py-2 px-6 after:absolute after:h-1 after:hover:h-[200%] transition-all duration-500 hover:transition-all hover:duration-500 after:transition-all after:duration-500 after:hover:transition-all after:hover:duration-500 overflow-hidden z-20 after:z-[-20] after:bg-[#778464] after:rounded-t-full after:w-full after:bottom-0 after:left-0 text-gray-600 font-semibold cursor-pointer"
           onClick={() => {
             setCounter(0);
@@ -79,7 +79,7 @@ const App = () => {
 
         <div className=' h-[38rem] overflow-y-auto p-4'>
           {chat.length === 0 && (
-            <h1 className="fixed text-[40px] font-semibold text-[#ECDFCC] left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
+            <h1 className="fixed lg:text-[40px] text-2xl font-semibold text-[#ECDFCC] left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
             Hi! chef at your service
           </h1>
           
@@ -131,7 +131,7 @@ const App = () => {
 
         <div className='flex justify-end items-center mr-5'>
           <input
-            className="input h-[46px] mt-2 text-[14px] text-white/60 w-[450px] bg-[#1E201E] text-[#f4f4f5] px-3 py-1 rounded-[36px] border border-white/10 focus:outline-none focus:ring-2 focus:ring-gray-700 focus:ring-offset-2 focus:ring-offset-[#758570] transition-all duration-150 ease-in-out"
+            className="input h-[46px] mt-2 text-[14px] text-white/60 w-[450px] bg-[#1E201E] text-[#f4f4f5] px-3 py-1 rounded-[36px] border border-white/10 focus:outline-none focus:ring-2 focus:ring-gray-700 focus:ring-offset-2 focus:ring-offset-[#758570] transition-all duration-150 ease-in-out ml-4"
             name="text"
             type="text"
             placeholder={chat.length === 0 ? "Enter the leftover items" : "Ask ReDish..."}
