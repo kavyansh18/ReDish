@@ -68,16 +68,23 @@ const App = () => {
       <p className="mb-3 text-[#ECDFCC] text-2xl flex justify-center items-center">Discover Indian recipes with your leftover ingredients!</p>
       <div className='shadow-2xl h-[45rem] w-[80%] mx-auto bg-[#262926] rounded-[36px]'>
         <button
-          className="smky-btn3 relative hover:text-[#778464] ml-1 py-2 px-6 after:absolute after:h-1 after:hover:h-[200%] transition-all duration-500 hover:transition-all hover:duration-500 after:transition-all after:duration-500 after:hover:transition-all after:hover:duration-500 overflow-hidden z-20 after:z-[-20] after:bg-[#abd373] after:rounded-t-full after:w-full after:bottom-0 after:left-0 text-gray-600 font-semibold"
-          onClick={() => { 
-            setCounter(0); 
-            setChat([]); 
-        }}
+          className="smky-btn3 relative hover:text-[#ECDFCC] ml-1 py-2 px-6 after:absolute after:h-1 after:hover:h-[200%] transition-all duration-500 hover:transition-all hover:duration-500 after:transition-all after:duration-500 after:hover:transition-all after:hover:duration-500 overflow-hidden z-20 after:z-[-20] after:bg-[#778464] after:rounded-t-full after:w-full after:bottom-0 after:left-0 text-gray-600 font-semibold cursor-pointer"
+          onClick={() => {
+            setCounter(0);
+            setChat([]);
+          }}
         >
           Start new chat
         </button>
 
         <div className=' h-[38rem] overflow-y-auto p-4'>
+          {chat.length === 0 && (
+            <h1 className="fixed text-[40px] font-semibold text-[#ECDFCC] left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
+            Hi! chef at your service
+          </h1>
+          
+          )}
+
           {chat.map((message, index) => (
             <div
               key={index}
@@ -91,11 +98,10 @@ const App = () => {
                 />
               )}
               <div
-                className={`max-w-[70%] px-4 py-2 rounded-lg ${
-                  message.sender === 'user'
+                className={`max-w-[70%] px-4 py-2 rounded-lg ${message.sender === 'user'
                     ? 'bg-[#758570] text-white self-end'
                     : 'bg-[#e3d7c7] text-gray-900'
-                }`}
+                  }`}
               >
                 {typeof message.text === 'string' ? message.text : message.text}
               </div>
