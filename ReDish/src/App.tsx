@@ -73,7 +73,7 @@ const App = () => {
     <div className="p-4 bg-[#1E201E] min-h-screen">
       <h1 className="lg:text-7xl text-5xl pt-5 font-bold text-[#697565] unlock-regular flex justify-center items-center mb-1">ReDish</h1>
       <p className="mb-3 text-[#ECDFCC] lg:text-2xl text-sm flex justify-center items-center">Discover Indian recipes with your leftover ingredients!</p>
-      <div className='shadow-2xl h-[45rem] lg:w-[80%] w-[100%] mx-auto bg-[#262926] rounded-[36px] lg:scale-100 scale-[.9]'>
+      <div className='shadow-2xl h-[42rem] lg:w-[80%] w-[100%] mx-auto bg-[#262926] rounded-[36px] lg:scale-100 scale-[.9]'>
         <button 
           className="smky-btn3 relative hover:text-[#ECDFCC] ml-1 py-2 px-6 after:absolute after:h-1 after:hover:h-[200%] transition-all duration-500 hover:transition-all hover:duration-500 after:transition-all after:duration-500 after:hover:transition-all after:hover:duration-500 overflow-hidden z-20 after:z-[-20] after:bg-[#778464] after:rounded-t-full after:w-full after:bottom-0 after:left-0 text-gray-600 font-semibold cursor-pointer"
           onClick={() => {
@@ -84,7 +84,7 @@ const App = () => {
           Start new chat
         </button>
 
-        <div className='h-[38rem] overflow-y-auto p-4' ref={chatContainerRef}>
+        <div className='h-[35.6rem] overflow-y-auto p-4' ref={chatContainerRef}>
           {chat.length === 0 && (
             <h1 className="fixed lg:text-[40px] text-2xl font-semibold text-[#ECDFCC] left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
               Hi! chef at your service
@@ -147,7 +147,7 @@ const App = () => {
           />
           <span>
             <img
-              className='w-12 mt-2 cursor-pointer hover:bg-[#1E201E] rounded-[6px] ml-1 p-1'
+              className='lg:w-12 w-[70px] mt-2 cursor-pointer hover:bg-[#1E201E] rounded-[36px] ml-1 p-1'
               src={send}
               alt="Send"
               onClick={generateAnswer}
