@@ -13,27 +13,27 @@ const App = () => {
   const [chat, setChat] = useState<{ sender: string; text: string }[]>([]);
   const apiKey = import.meta.env.VITE_API_KEY;
 
-
   const generateAnswer = async () => {
+    setCounter(1)
     if (input.length === 0 && !input.trim()) {
       alert('Please provide input or add food items to the list.');
       return;
     }
-  
+
     const userText = input.trim();
     let prompt = '';
-  
+
     if (counter == 0) {
-      prompt = `You are ReDish, a Chrome extension that helps users make dishes from leftover food items. You specialize in Indian cuisine. Suggest short and beautifully formatted dishes that can be easily made at home using these leftover items: ${input}.`;
+      prompt = `You are ReDish, a Chrome extension that helps users make dishes from leftover food items. You specialize in Indian cuisine. Suggest short and beautifully formatted dishes that can be easily made at home using these leftover items: ${input}.If user gives input instead of any food items give him a warning thst please enter food items with some examples`;
       setChat((prevChat) => [...prevChat, { sender: 'user', text: `Food items: ${input}` }]);
     } else {
       prompt = `${userText}`;
       setChat((prevChat) => [...prevChat, { sender: 'user', text: userText }]);
     }
-  
+
     setInput('');
     setIsLoading(true);
-  
+
     try {
       const response = await axios({
         url: `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`,
@@ -42,9 +42,15 @@ const App = () => {
           contents: [{ parts: [{ text: prompt }] }],
         },
       });
-  
+
       const botResponse = response.data?.candidates?.[0]?.content?.parts?.[0]?.text || 'Sorry, I could not generate a response.';
-      setChat((prevChat) => [...prevChat, { sender: 'bot', text: botResponse }]);
+
+      const formattedResponse = botResponse.split('\n').map((line: string, index: number) => {
+        const formattedLine = line.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+        return <p key={index} dangerouslySetInnerHTML={{ __html: formattedLine }} />;
+      });
+
+      setChat((prevChat) => [...prevChat, { sender: 'bot', text: formattedResponse }]);
     } catch (error) {
       console.error('Error generating response:', error);
       setChat((prevChat) => [
@@ -55,7 +61,6 @@ const App = () => {
       setIsLoading(false);
     }
   };
-  
 
   return (
     <div className="p-4 bg-[#1E201E] min-h-screen">
@@ -92,7 +97,7 @@ const App = () => {
                     : 'bg-[#e3d7c7] text-gray-900'
                 }`}
               >
-                {message.text}
+                {typeof message.text === 'string' ? message.text : message.text}
               </div>
               {message.sender === 'user' && (
                 <img
