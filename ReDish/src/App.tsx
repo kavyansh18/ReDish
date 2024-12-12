@@ -58,41 +58,28 @@ const App = () => {
   };
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif', maxWidth: '600px', margin: 'auto' }}>
-      <h1>ReDish</h1>
-      <p>Enter leftover food items, add them to the list, and submit to get suggestions for Indian dishes you can make at home!</p>
-
-      <div style={{ marginBottom: '10px' }}>
+    <div className="p-4">
+      <h1 className="text-3xl font-bold mb-4">ReDish</h1>
+      <p className="mb-6">Enter leftover food items, add them to the list, and submit to get suggestions for Indian dishes you can make at home!</p>
+  
+      <div className="mb-4">
         <input
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Enter a leftover food item"
-          style={{
-            padding: '10px',
-            width: '300px',
-            marginRight: '10px',
-            border: '1px solid #ccc',
-            borderRadius: '4px',
-          }}
+          className="p-2 w-72 mr-2 border border-gray-300 rounded-md"
         />
         <button
           onClick={addFoodItem}
-          style={{
-            padding: '10px 20px',
-            backgroundColor: '#007BFF',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer',
-          }}
+          className="p-2 px-5 bg-blue-500 text-white border-none rounded-md cursor-pointer"
         >
           Add
         </button>
       </div>
-
+  
       <div>
-        <h3>Food List:</h3>
+        <h3 className="text-xl font-semibold mb-2">Food List:</h3>
         {foodList.length === 0 ? (
           <p>No items added yet.</p>
         ) : (
@@ -103,60 +90,33 @@ const App = () => {
           </ul>
         )}
       </div>
-
+  
       <button
         onClick={generateAnswer}
-        style={{
-          padding: '10px 20px',
-          backgroundColor: '#28A745',
-          color: 'white',
-          border: 'none',
-          borderRadius: '4px',
-          cursor: 'pointer',
-          marginTop: '20px',
-        }}
+        className="mt-5 p-2 px-5 bg-green-500 text-white border-none rounded-md cursor-pointer"
       >
         Submit
       </button>
-
-      <div
-        style={{
-          marginTop: '20px',
-          padding: '10px',
-          border: '1px solid #ccc',
-          borderRadius: '8px',
-          backgroundColor: '#f9f9f9',
-          maxHeight: '300px',
-          overflowY: 'auto',
-        }}
-      >
+  
+      <div className="mt-5 p-4 border border-gray-300 rounded-lg bg-gray-100 max-h-96 overflow-y-auto">
         {chat.map((message, index) => (
           <div
             key={index}
-            style={{
-              marginBottom: '10px',
-              textAlign: message.sender === 'user' ? 'right' : 'left',
-            }}
+            className={`mb-2 text-${message.sender === 'user' ? 'right' : 'left'}`}
           >
             <div
-              style={{
-                display: 'inline-block',
-                padding: '10px',
-                borderRadius: '8px',
-                backgroundColor: message.sender === 'user' ? '#007BFF' : '#e1e1e1',
-                color: message.sender === 'user' ? 'white' : 'black',
-              }}
+              className={`inline-block p-2 rounded-lg ${message.sender === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-300 text-black'}`}
             >
               {message.sender === 'bot' ? renderFormattedText(message.text) : message.text}
             </div>
           </div>
         ))}
         {isLoading && (
-          <div style={{ textAlign: 'left', color: '#555' }}>Typing...</div>
+          <div className="text-left text-gray-600">Typing...</div>
         )}
       </div>
     </div>
   );
-};
+}  
 
 export default App;
