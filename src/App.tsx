@@ -104,7 +104,7 @@ const App = () => {
                 />
               )}
               <div
-                className={`max-w-[70%] px-4 py-2 rounded-lg ${message.sender === 'user'
+                className={`max-w-[70%] px-5 py-3 rounded-[36px] ${message.sender === 'user'
                     ? 'bg-[#758570] text-white self-end'
                     : 'bg-[#e3d7c7] text-gray-900'
                   }`}
