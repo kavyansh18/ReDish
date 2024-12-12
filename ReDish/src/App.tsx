@@ -1,8 +1,14 @@
 import { useState } from 'react';
 import axios from 'axios';
+import './font.css';
+import './index.css';
+import send from './assets/send.png';
+import userIcon from './assets/user.png';
+import botIcon from './assets/chef.png';
 
 const App = () => {
   const [input, setInput] = useState('');
+  const [counter, setCounter] = useState(0);
   const [foodList, setFoodList] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [chat, setChat] = useState<{ sender: string; text: string }[]>([]);
@@ -47,76 +53,113 @@ const App = () => {
     }
   };
 
-  const renderFormattedText = (text: string) => {
-    return text.split('\n').map((line, index) => (
-      <p key={index} style={{ margin: '5px 0' }}>
-        {line.split('**').map((segment, i) =>
-          i % 2 === 1 ? <strong key={i}>{segment}</strong> : segment
-        )}
-      </p>
-    ));
+  const handleSend = async () => {
+    if (!input.trim()) return;
+
+    setChat((prevChat) => [...prevChat, { sender: 'user', text: input }]);
+    setInput('');
+    setIsLoading(true);
+
+    try {
+      const response: string = await generateResponse(input); // Replace with actual API call
+      setChat((prevChat) => [...prevChat, { sender: 'bot', text: response }]);
+    } catch (error) {
+      console.error('Error generating response:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const generateResponse = async (text: string): Promise<string> => {
+    // Mock API call
+    return new Promise<string>((resolve) => {
+      setTimeout(() => resolve(`Response to: ${text}`), 1000);
+    });
   };
 
   return (
-    <div className="p-4">
-      <h1 className="text-3xl font-bold mb-4">ReDish</h1>
-      <p className="mb-6">Enter leftover food items, add them to the list, and submit to get suggestions for Indian dishes you can make at home!</p>
-  
-      <div className="mb-4">
-        <input
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="Enter a leftover food item"
-          className="p-2 w-72 mr-2 border border-gray-300 rounded-md"
-        />
+    <div className="p-4 bg-[#1E201E] min-h-screen">
+      <h1 className="text-7xl pt-5 font-bold text-[#697565] unlock-regular flex justify-center items-center">ReDish</h1>
+      <p className="mb-3 text-[#ECDFCC] text-2xl flex justify-center items-center">Discover Indian recipes with your leftover ingredients!</p>
+      <div className='shadow-2xl h-[45rem] w-[80%] mx-auto bg-[#262926] rounded-[36px]'>
         <button
-          onClick={addFoodItem}
-          className="p-2 px-5 bg-blue-500 text-white border-none rounded-md cursor-pointer"
+          className="smky-btn3 relative hover:text-[#778464] ml-1 py-2 px-6 after:absolute after:h-1 after:hover:h-[200%] transition-all duration-500 hover:transition-all hover:duration-500 after:transition-all after:duration-500 after:hover:transition-all after:hover:duration-500 overflow-hidden z-20 after:z-[-20] after:bg-[#abd373] after:rounded-t-full after:w-full after:bottom-0 after:left-0 text-gray-600 font-semibold"
+          onClick={() => { 
+            setCounter(0); 
+            setChat([]); 
+        }}
         >
-          Add
+          Start new chat
         </button>
-      </div>
-  
-      <div>
-        <h3 className="text-xl font-semibold mb-2">Food List:</h3>
-        {foodList.length === 0 ? (
-          <p>No items added yet.</p>
-        ) : (
-          <ul>
-            {foodList.map((item, index) => (
-              <li key={index}>{item}</li>
-            ))}
-          </ul>
-        )}
-      </div>
-  
-      <button
-        onClick={generateAnswer}
-        className="mt-5 p-2 px-5 bg-green-500 text-white border-none rounded-md cursor-pointer"
-      >
-        Submit
-      </button>
-  
-      <div className="mt-5 p-4 border border-gray-300 rounded-lg bg-gray-100 max-h-96 overflow-y-auto">
-        {chat.map((message, index) => (
-          <div
-            key={index}
-            className={`mb-2 text-${message.sender === 'user' ? 'right' : 'left'}`}
-          >
+
+        <div className=' h-[38rem] overflow-y-auto p-4'>
+          {chat.map((message, index) => (
             <div
-              className={`inline-block p-2 rounded-lg ${message.sender === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-300 text-black'}`}
+              key={index}
+              className={`flex items-start mb-4 ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
             >
-              {message.sender === 'bot' ? renderFormattedText(message.text) : message.text}
+              {message.sender === 'bot' && (
+                <img
+                  src={botIcon}
+                  alt="Bot Icon"
+                  className="w-8 h-8 rounded-full mr-3"
+                />
+              )}
+              <div
+                className={`max-w-[70%] px-4 py-2 rounded-lg ${
+                  message.sender === 'user'
+                    ? 'bg-[#758570] text-white self-end'
+                    : 'bg-[#e3d7c7] text-gray-900'
+                }`}
+              >
+                {message.text}
+              </div>
+              {message.sender === 'user' && (
+                <img
+                  src={userIcon}
+                  alt="User Icon"
+                  className="w-8 h-8 rounded-full ml-3"
+                />
+              )}
             </div>
-          </div>
-        ))}
-        {isLoading && (
-          <div className="text-left text-gray-600">Typing...</div>
-        )}
+          ))}
+
+          {isLoading && (
+            <div className='flex items-center justify-start mb-4'>
+              <img
+                src={botIcon}
+                alt="Bot Icon"
+                className="w-8 h-8 rounded-full mr-3"
+              />
+              <div className='max-w-[70%] px-4 py-2 rounded-lg bg-gray-200 text-gray-900'>
+                Generating response...
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className='flex justify-end items-center mr-5'>
+          <input
+            className="input h-[44px] mt-2 text-[14px] text-white/60 w-[450px] bg-[#1E201E] text-[#f4f4f5] px-3 py-1 rounded-lg border border-white/10 focus:outline-none focus:ring-2 focus:ring-gray-700 focus:ring-offset-2 focus:ring-offset-[#09090b] transition-all duration-150 ease-in-out"
+            name="text"
+            type="text"
+            placeholder={counter === 0 ? "Enter the leftover items" : "Ask ReDish..."}
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+          />
+          <span>
+            <img
+              className='w-11 mt-2 cursor-pointer hover:bg-slate-900 rounded-[6px] ml-1 p-1'
+              src={send}
+              alt="Send"
+              onClick={handleSend}
+            />
+          </span>
+        </div>
       </div>
     </div>
   );
-}  
+};
 
 export default App;
