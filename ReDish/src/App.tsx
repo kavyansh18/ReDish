@@ -3,8 +3,9 @@ import axios from 'axios';
 
 const App = () => {
   const [input, setInput] = useState('');
-  const [foodList, setFoodList] = useState([]);
-  const [response, setResponse] = useState('');
+  const [foodList, setFoodList] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [chat, setChat] = useState<{ sender: string; text: string }[]>([]);
   const apiKey = import.meta.env.VITE_API_KEY;
 
   const addFoodItem = () => {
@@ -22,6 +23,9 @@ const App = () => {
 
     const prompt = `You are ReDish, a Chrome extension that helps users make dishes from leftover food items. You specialize in Indian cuisine. Suggest short and beautifully formatted dishes that can be easily made at home using these leftover items: ${foodList.join(', ')}.`;
 
+    setIsLoading(true);
+    setChat((prevChat) => [...prevChat, { sender: 'user', text: `Food items: ${foodList.join(', ')}` }]);
+
     try {
       const response = await axios({
         url: `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`,
@@ -30,19 +34,34 @@ const App = () => {
           contents: [{ parts: [{ text: prompt }] }],
         },
       });
-      setResponse(response['data']['candidates'][0]['content']['parts'][0]['text']);
+      const botResponse = response['data']['candidates'][0]['content']['parts'][0]['text'];
+      setChat((prevChat) => [...prevChat, { sender: 'bot', text: botResponse }]);
     } catch (error) {
       console.error('Error generating answer:', error);
-      setResponse('An error occurred while generating the response. Please try again.');
+      setChat((prevChat) => [
+        ...prevChat,
+        { sender: 'bot', text: 'An error occurred while generating the response. Please try again.' },
+      ]);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  return (
-    <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
-      <h1>ReDish</h1>
-      <p>
-        Enter leftover food items, add them to the list, and submit to get suggestions for Indian dishes you can make at home!
+  const renderFormattedText = (text: string) => {
+    return text.split('\n').map((line, index) => (
+      <p key={index} style={{ margin: '5px 0' }}>
+        {line.split('**').map((segment, i) =>
+          i % 2 === 1 ? <strong key={i}>{segment}</strong> : segment
+        )}
       </p>
+    ));
+  };
+
+  return (
+    <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif', maxWidth: '600px', margin: 'auto' }}>
+      <h1>ReDish</h1>
+      <p>Enter leftover food items, add them to the list, and submit to get suggestions for Indian dishes you can make at home!</p>
+
       <div style={{ marginBottom: '10px' }}>
         <input
           type="text"
@@ -71,6 +90,7 @@ const App = () => {
           Add
         </button>
       </div>
+
       <div>
         <h3>Food List:</h3>
         {foodList.length === 0 ? (
@@ -83,6 +103,7 @@ const App = () => {
           </ul>
         )}
       </div>
+
       <button
         onClick={generateAnswer}
         style={{
@@ -97,12 +118,43 @@ const App = () => {
       >
         Submit
       </button>
-      {response && (
-        <div style={{ marginTop: '20px' }}>
-          <h3>Suggested Dishes:</h3>
-          <div style={{ whiteSpace: 'pre-wrap', lineHeight: '1.5' }}>{response}</div>
-        </div>
-      )}
+
+      <div
+        style={{
+          marginTop: '20px',
+          padding: '10px',
+          border: '1px solid #ccc',
+          borderRadius: '8px',
+          backgroundColor: '#f9f9f9',
+          maxHeight: '300px',
+          overflowY: 'auto',
+        }}
+      >
+        {chat.map((message, index) => (
+          <div
+            key={index}
+            style={{
+              marginBottom: '10px',
+              textAlign: message.sender === 'user' ? 'right' : 'left',
+            }}
+          >
+            <div
+              style={{
+                display: 'inline-block',
+                padding: '10px',
+                borderRadius: '8px',
+                backgroundColor: message.sender === 'user' ? '#007BFF' : '#e1e1e1',
+                color: message.sender === 'user' ? 'white' : 'black',
+              }}
+            >
+              {message.sender === 'bot' ? renderFormattedText(message.text) : message.text}
+            </div>
+          </div>
+        ))}
+        {isLoading && (
+          <div style={{ textAlign: 'left', color: '#555' }}>Typing...</div>
+        )}
+      </div>
     </div>
   );
 };
