@@ -73,7 +73,7 @@ const App = () => {
     <div className="p-4 bg-[#1E201E] min-h-screen">
       <h1 className="lg:text-7xl text-5xl pt-5 font-bold text-[#697565] unlock-regular flex justify-center items-center mb-1">ReDish</h1>
       <p className="mb-3 text-[#ECDFCC] lg:text-2xl text-sm flex justify-center items-center">Discover Indian recipes with your leftover ingredients!</p>
-      <div className='shadow-2xl h-[42rem] lg:w-[80%] w-[100%] mx-auto bg-[#262926] rounded-[36px] lg:scale-100 scale-[.9]'>
+      <div className='shadow-2xl h-[42rem] lg:w-[90%] w-[100%] mx-auto bg-[#262926] rounded-[36px] lg:scale-100 scale-[.9]'>
         <button 
           className="smky-btn3 relative hover:text-[#ECDFCC] ml-1 py-2 px-6 after:absolute after:h-1 after:hover:h-[200%] transition-all duration-500 hover:transition-all hover:duration-500 after:transition-all after:duration-500 after:hover:transition-all after:hover:duration-500 overflow-hidden z-20 after:z-[-20] after:bg-[#778464] after:rounded-t-full after:w-full after:bottom-0 after:left-0 text-gray-600 font-semibold cursor-pointer"
           onClick={() => {
