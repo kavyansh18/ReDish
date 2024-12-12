@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import './font.css';
 import './index.css';
@@ -11,10 +11,11 @@ const App = () => {
   const [counter, setCounter] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [chat, setChat] = useState<{ sender: string; text: string }[]>([]);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
   const apiKey = import.meta.env.VITE_API_KEY;
 
   const generateAnswer = async () => {
-    setCounter(1)
+    setCounter(1);
     if (input.length === 0 && !input.trim()) {
       alert('Please provide input or add food items to the list.');
       return;
@@ -23,8 +24,8 @@ const App = () => {
     const userText = input.trim();
     let prompt = '';
 
-    if (counter == 0) {
-      prompt = `You are ReDish, a Chrome extension that helps users make dishes from leftover food items. You specialize in Indian cuisine. Suggest short and beautifully formatted dishes that can be easily made at home using these leftover items: ${input}.If user gives input instead of any food items give him a warning thst please enter food items with some examples`;
+    if (counter === 0) {
+      prompt = `You are ReDish, a Chrome extension that helps users make dishes from leftover food items. You specialize in Indian cuisine. Suggest short and beautifully formatted dishes that can be easily made at home using these leftover items: ${input}.If user gives input instead of any food items give him a warning that please enter food items with some examples`;
       setChat((prevChat) => [...prevChat, { sender: 'user', text: `Food items: ${input}` }]);
     } else {
       prompt = `${userText}`;
@@ -62,6 +63,12 @@ const App = () => {
     }
   };
 
+  useEffect(() => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
+  }, [chat]);
+
   return (
     <div className="p-4 bg-[#1E201E] min-h-screen">
       <h1 className="lg:text-7xl text-5xl pt-5 font-bold text-[#697565] unlock-regular flex justify-center items-center mb-1">ReDish</h1>
@@ -77,12 +84,11 @@ const App = () => {
           Start new chat
         </button>
 
-        <div className=' h-[38rem] overflow-y-auto p-4'>
+        <div className='h-[38rem] overflow-y-auto p-4' ref={chatContainerRef}>
           {chat.length === 0 && (
             <h1 className="fixed lg:text-[40px] text-2xl font-semibold text-[#ECDFCC] left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
-            Hi! chef at your service
-          </h1>
-          
+              Hi! chef at your service
+            </h1>
           )}
 
           {chat.map((message, index) => (
