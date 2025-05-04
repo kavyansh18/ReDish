@@ -11,11 +11,6 @@ const LandingPage = () => {
     visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
   };
 
-  const buttonVariants = {
-    hover: { scale: 1.05, boxShadow: '0 0 15px rgba(255, 255, 255, 0.3)' },
-    tap: { scale: 0.95 },
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 text-white">
       <div className="container mx-auto p-8">
