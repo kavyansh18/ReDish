@@ -25,7 +25,7 @@ const LandingPage = () => {
               DailyAI: Your Smart Companion
             </h1>
             <p className="text-xl md:text-2xl text-gray-300 max-w-2xl mx-auto mb-8">
-              Empower your day with AI-driven tools for cooking, studying, motivation, and coding—built for students and bachelors.
+              Empower your day with AI-driven tools for cooking, studying, motivation, and coding.
             </p>
             {/* <motion.div
               variants={buttonVariants}
