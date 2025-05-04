@@ -1,161 +1,150 @@
-import { useState, useRef, useEffect } from 'react';
-import axios from 'axios';
+import { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import LandingPage from './pages/LandingPage';
+import ReDish from './components/ReDish';
+import QuickStudy from './components/QuickStudy';
+import OneClickMotivation from './components/OneClickMotivation';
+import CodeDebugger from './components/CodeDebugger';
+import redishLogo from './assets/chef.png';
+import quickstudyLogo from './assets/book.png';
+import motivationLogo from './assets/fire.png';
+import debuggerLogo from './assets/code.png';
 import './font.css';
 import './index.css';
-import send from './assets/send.png';
-import userIcon from './assets/user.png';
-import botIcon from './assets/chef.png';
 
 const App = () => {
-  const [input, setInput] = useState('');
-  const [counter, setCounter] = useState(0);
-  const [isLoading, setIsLoading] = useState(false);
-  const [chat, setChat] = useState<{ sender: string; text: string }[]>([]);
-  const chatContainerRef = useRef<HTMLDivElement>(null);
-  const apiKey = import.meta.env.VITE_API_KEY;
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const generateAnswer = async () => {
-    setCounter(1);
-    if (input.length === 0 && !input.trim()) {
-      alert('Please provide input or add food items to the list.');
-      return;
-    }
-
-    const userText = input.trim();
-    let prompt = '';
-
-    if (counter === 0) {
-      prompt = `You are ReDish, a Chrome extension that helps users make dishes from leftover food items. You specialize in Indian cuisine. Suggest short and beautifully formatted dishes that can be easily made at home using these leftover items: ${input}.If user gives input instead of any food items give him a warning that please enter food items with some examples`;
-      setChat((prevChat) => [...prevChat, { sender: 'user', text: `Food items: ${input}` }]);
-    } else {
-      prompt = `${userText}`;
-      setChat((prevChat) => [...prevChat, { sender: 'user', text: userText }]);
-    }
-
-    setInput('');
-    setIsLoading(true);
-
-    try {
-      const response = await axios({
-        url: `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`,
-        method: 'POST',
-        data: {
-          contents: [{ parts: [{ text: prompt }] }],
-        },
-      });
-
-      const botResponse = response.data?.candidates?.[0]?.content?.parts?.[0]?.text || 'Sorry, I could not generate a response.';
-
-      const formattedResponse = botResponse.split('\n').map((line: string, index: number) => {
-        const formattedLine = line.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
-        return <p key={index} dangerouslySetInnerHTML={{ __html: formattedLine }} />;
-      });
-
-      setChat((prevChat) => [...prevChat, { sender: 'bot', text: formattedResponse }]);
-    } catch (error) {
-      console.error('Error generating response:', error);
-      setChat((prevChat) => [
-        ...prevChat,
-        { sender: 'bot', text: 'An error occurred while generating the response. Please try again.' },
-      ]);
-    } finally {
-      setIsLoading(false);
-    }
+  const logoVariants = {
+    hover: { scale: 1.2, transition: { duration: 0.3 } },
   };
 
-  useEffect(() => {
-    if (chatContainerRef.current) {
-      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
-    }
-  }, [chat]);
+  const menuVariants = {
+    open: { opacity: 1, x: 0, transition: { duration: 0.3 } },
+    closed: { opacity: 0, x: '100%', transition: { duration: 0.3 } },
+  };
 
   return (
-    <div className="p-4 bg-[#1E201E] min-h-screen">
-      <h1 className="lg:text-7xl text-5xl pt-5 font-bold text-[#697565] unlock-regular flex justify-center items-center mb-1">ReDish</h1>
-      <p className="mb-3 text-[#ECDFCC] lg:text-2xl text-sm flex justify-center items-center">Discover Indian recipes with your leftover ingredients!</p>
-      <div className='shadow-2xl h-[42rem] lg:w-[90%] w-[100%] mx-auto bg-[#262926] rounded-[36px] lg:scale-100 scale-[.9]'>
-        <button 
-          className="smky-btn3 relative hover:text-[#ECDFCC] ml-1 py-2 px-6 after:absolute after:h-1 after:hover:h-[200%] transition-all duration-500 hover:transition-all hover:duration-500 after:transition-all after:duration-500 after:hover:transition-all after:hover:duration-500 overflow-hidden z-20 after:z-[-20] after:bg-[#778464] after:rounded-t-full after:w-full after:bottom-0 after:left-0 text-gray-600 font-semibold cursor-pointer"
-          onClick={() => {
-            setCounter(0);
-            setChat([]);
-          }}
+    <Router>
+      <div className="min-h-screen bg-gradient-to-b from-black to-gray-900">
+        <motion.nav
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
         >
-          Start new chat
-        </button>
-
-        <div className='h-[35.6rem] overflow-y-auto p-4' ref={chatContainerRef}>
-          {chat.length === 0 && (
-            <h1 className="fixed lg:text-[40px] text-2xl font-semibold text-[#ECDFCC] left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
-              Hi! chef at your service
-            </h1>
-          )}
-
-          {chat.map((message, index) => (
-            <div
-              key={index}
-              className={`flex items-start mb-4 ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-            >
-              {message.sender === 'bot' && (
-                <img
-                  src={botIcon}
-                  alt="Bot Icon"
-                  className="w-8 h-8 rounded-full mr-3"
-                />
-              )}
-              <div
-                className={`max-w-[70%] px-5 py-3 rounded-[36px] ${message.sender === 'user'
-                    ? 'bg-[#758570] text-white self-end'
-                    : 'bg-[#e3d7c7] text-gray-900'
-                  }`}
+          <nav className="bg-gray-800/50 backdrop-blur-lg p-4 shadow-lg border-b border-gray-700/50 sticky top-0 z-50">
+            <div className="container mx-auto flex justify-between items-center">
+              <Link to="/" className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-300">
+                DailyAI
+              </Link>
+              {/* Desktop Navbar */}
+              <div className="hidden md:flex space-x-6 items-center">
+                <motion.div variants={logoVariants} whileHover="hover">
+                  <Link to="/redish">
+                    <img
+                      src={redishLogo}
+                      alt="ReDish"
+                      className="w-10 h-10 hover:shadow-[0_0_10px_rgba(117,133,112,0.7)] rounded-full transition-all"
+                    />
+                  </Link>
+                </motion.div>
+                <motion.div variants={logoVariants} whileHover="hover">
+                  <Link to="/quickstudy">
+                    <img
+                      src={quickstudyLogo}
+                      alt="QuickStudy"
+                      className="w-10 h-10 hover:shadow-[0_0_10px_rgba(90,124,155,0.7)] rounded-full transition-all"
+                    />
+                  </Link>
+                </motion.div>
+                <motion.div variants={logoVariants} whileHover="hover">
+                  <Link to="/oneclickmotivation">
+                    <img
+                      src={motivationLogo}
+                      alt="OneClickMotivation"
+                      className="w-10 h-10 hover:shadow-[0_0_10px_rgba(217,119,6,0.7)] rounded-full transition-all"
+                    />
+                  </Link>
+                </motion.div>
+                <motion.div variants={logoVariants} whileHover="hover">
+                  <Link to="/codedebugger">
+                    <img
+                      src={debuggerLogo}
+                      alt="CodeDebugger"
+                      className="w-10 h-10 hover:shadow-[0_0_10px_rgba(124,58,237,0.7)] rounded-full transition-all"
+                    />
+                  </Link>
+                </motion.div>
+              </div>
+              {/* Mobile Menu Button */}
+              <button
+                className="md:hidden text-white focus:outline-none"
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
               >
-                {typeof message.text === 'string' ? message.text : message.text}
-              </div>
-              {message.sender === 'user' && (
-                <img
-                  src={userIcon}
-                  alt="User Icon"
-                  className="w-8 h-8 rounded-full ml-3"
-                />
-              )}
+                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d={isMenuOpen ? 'M6 18L18 6M6 6l12 12' : 'M4 6h16M4 12h16M4 18h16'}
+                  />
+                </svg>
+              </button>
             </div>
-          ))}
-
-          {isLoading && (
-            <div className='flex items-center justify-start mb-4'>
-              <img
-                src={botIcon}
-                alt="Bot Icon"
-                className="w-8 h-8 rounded-full mr-3"
-              />
-              <div className='max-w-[70%] px-4 py-2 rounded-lg bg-gray-200 text-gray-900'>
-                Generating response...
+            {/* Mobile Menu */}
+            <motion.div
+              {...{ className: "md:hidden bg-gray-800/90 backdrop-blur-lg absolute top-16 right-0 w-48 p-4 rounded-lg shadow-lg" }}
+              initial="closed"
+              animate={isMenuOpen ? 'open' : 'closed'}
+              variants={menuVariants}
+            >
+              <div className="flex flex-col space-y-4">
+                <Link
+                  to="/redish"
+                  onClick={() => setIsMenuOpen(false)}
+                  className="flex items-center space-x-2 hover:bg-gray-700/50 p-2 rounded"
+                >
+                  <img src={redishLogo} alt="ReDish" className="w-8 h-8 rounded-full" />
+                  <span className="text-redish-accent">ReDish</span>
+                </Link>
+                <Link
+                  to="/quickstudy"
+                  onClick={() => setIsMenuOpen(false)}
+                  className="flex items-center space-x-2 hover:bg-gray-700/50 p-2 rounded"
+                >
+                  <img src={quickstudyLogo} alt="QuickStudy" className="w-8 h-8 rounded-full" />
+                  <span className="text-quickstudy-accent">QuickStudy</span>
+                </Link>
+                <Link
+                  to="/oneclickmotivation"
+                  onClick={() => setIsMenuOpen(false)}
+                  className="flex items-center space-x-2 hover:bg-gray-700/50 p-2 rounded"
+                >
+                  <img src={motivationLogo} alt="OneClickMotivation" className="w-8 h-8 rounded-full" />
+                  <span className="text-motivation-accent">OneClickMotivation</span>
+                </Link>
+                <Link
+                  to="/codedebugger"
+                  onClick={() => setIsMenuOpen(false)}
+                  className="flex items-center space-x-2 hover:bg-gray-700/50 p-2 rounded"
+                >
+                  <img src={debuggerLogo} alt="CodeDebugger" className="w-8 h-8 rounded-full" />
+                  <span className="text-debugger-accent">CodeDebugger</span>
+                </Link>
               </div>
-            </div>
-          )}
-        </div>
-
-        <div className='flex justify-end items-center mr-5'>
-          <input
-            className="input h-[46px] mt-2 text-[14px] text-white/60 w-[450px] bg-[#1E201E] text-[#f4f4f5] px-3 py-1 rounded-[36px] border border-white/10 focus:outline-none focus:ring-2 focus:ring-gray-700 focus:ring-offset-2 focus:ring-offset-[#758570] transition-all duration-150 ease-in-out ml-4"
-            name="text"
-            type="text"
-            placeholder={chat.length === 0 ? "Enter the leftover items" : "Ask ReDish..."}
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && generateAnswer()}
-          />
-          <span>
-            <img
-              className='lg:w-12 w-[70px] mt-2 cursor-pointer hover:bg-[#1E201E] rounded-[36px] ml-1 p-1'
-              src={send}
-              alt="Send"
-              onClick={generateAnswer}
-            />
-          </span>
-        </div>
+            </motion.div>
+          </nav>
+        </motion.nav>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/redish" element={<ReDish />} />
+          <Route path="/quickstudy" element={<QuickStudy />} />
+          <Route path="/oneclickmotivation" element={<OneClickMotivation />} />
+          <Route path="/codedebugger" element={<CodeDebugger />} />
+        </Routes>
       </div>
-    </div>
+    </Router>
   );
 };
 
