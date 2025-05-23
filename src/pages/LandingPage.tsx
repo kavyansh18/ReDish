@@ -27,18 +27,6 @@ const LandingPage = () => {
             <p className="text-xl md:text-2xl text-gray-300 max-w-2xl mx-auto mb-8">
               Empower your day with AI-driven tools for cooking, studying, motivation, and coding.
             </p>
-            {/* <motion.div
-              variants={buttonVariants}
-              whileHover="hover"
-              whileTap="tap"
-            >
-              <Link
-                to="/redish"
-                className="bg-gradient-to-r from-gray-700 to-gray-600 text-white px-8 py-3 rounded-full text-lg font-semibold hover:from-gray-600 hover:to-gray-500 transition-all"
-              >
-                Explore Now
-              </Link>
-            </motion.div> */}
           </div>
         </motion.div>
 
